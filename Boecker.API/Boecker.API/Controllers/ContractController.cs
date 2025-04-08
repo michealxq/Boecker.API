@@ -1,0 +1,43 @@
+﻿using Boecker.Application.Contracts.Commands.ConfirmContract;
+using Boecker.Application.Contracts.Commands;
+using MediatR;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Boecker.Application.Contracts.Queries.GetAllContracts;
+using Boecker.Application.Contracts.Queries.GetContractById;
+
+namespace Boecker.API.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class ContractController(IMediator mediator) : ControllerBase
+    {
+        [HttpPost]
+        public async Task<IActionResult> CreateContract(CreateContractCommand command, CancellationToken cancellationToken)
+        {
+            var contractId = await mediator.Send(command, cancellationToken);
+            return Ok(contractId);
+        }
+
+        [HttpPost("{id}/confirm")]
+        public async Task<IActionResult> Confirm(int id, CancellationToken cancellationToken)
+        {
+            var success = await mediator.Send(new ConfirmContractCommand(id), cancellationToken);
+            return success ? Ok("Contract confirmed.") : NotFound("Contract not found.");
+        }
+
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetById(int id, CancellationToken cancellationToken)
+        {
+            var contract = await mediator.Send(new GetContractByIdQuery(id), cancellationToken);
+            return contract is not null ? Ok(contract) : NotFound("Contract not found.");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAll(CancellationToken cancellationToken)
+        {
+            var contracts = await mediator.Send(new GetAllContractsQuery(), cancellationToken);
+            return Ok(contracts);
+        }
+    }
+}
