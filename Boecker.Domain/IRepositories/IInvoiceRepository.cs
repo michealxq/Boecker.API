@@ -23,6 +23,7 @@ public interface IInvoiceRepository
     Task LinkToContractAsync(int invoiceId, int contractId, CancellationToken cancellationToken);
     Task<Invoice?> GetLatestProformaByContractIdAsync(int contractId, CancellationToken cancellationToken);
     Task<List<Invoice>> GetPendingDueByDateAsync(DateOnly dueDate, CancellationToken cancellationToken);
+    Task<Invoice?> GetByNumberAsync(string invoiceNumber, CancellationToken cancellationToken);
 
 
 

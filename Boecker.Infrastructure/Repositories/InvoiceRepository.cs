@@ -186,5 +186,13 @@ public class InvoiceRepository(ApplicationDbContext context) : IInvoiceRepositor
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<Invoice?> GetByNumberAsync(string invoiceNumber, CancellationToken cancellationToken)
+    {
+        // Assuming invoices have a property InvoiceNumber.
+        return await context.Invoices
+            .FirstOrDefaultAsync(i => i.InvoiceNumber == invoiceNumber, cancellationToken);
+    }
+
+
 
 }

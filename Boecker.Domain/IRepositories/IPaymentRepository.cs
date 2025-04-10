@@ -12,4 +12,6 @@ public interface IPaymentRepository
     Task<List<Payment>> GetAllAsync(CancellationToken cancellationToken);
     Task<decimal> GetTotalPaidForInvoiceAsync(int invoiceId, CancellationToken cancellationToken);
     IQueryable<Payment> Query();
+    Task<List<Payment>> GetAllPaymentsAsync(CancellationToken cancellationToken);
+    Task SaveChangesAsync(CancellationToken cancellationToken);
 }

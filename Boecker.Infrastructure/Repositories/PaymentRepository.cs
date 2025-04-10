@@ -56,4 +56,15 @@ public class PaymentRepository : IPaymentRepository
     {
         return _context.Payments.AsQueryable();
     }
+
+    public async Task<List<Payment>> GetAllPaymentsAsync(CancellationToken cancellationToken = default)
+    {
+        return await _context.Payments
+            .Include(p => p.Invoice) // Include relationships if needed
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task SaveChangesAsync(CancellationToken cancellationToken)
+    => await _context.SaveChangesAsync(cancellationToken);
+
 }

@@ -52,4 +52,9 @@ public class FollowUpRepository : IFollowUpRepository
     {
         return _context.FollowUpSchedules.AsQueryable();
     }
+
+    public async Task<List<FollowUpSchedule>> GetAllAsync(CancellationToken cancellationToken)
+    {
+        return await _context.FollowUpSchedules.ToListAsync(cancellationToken);
+    }
 }

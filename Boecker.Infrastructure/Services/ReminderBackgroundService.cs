@@ -48,7 +48,7 @@ public class ReminderBackgroundService : BackgroundService
             await Task.Delay(TimeSpan.FromHours(24), stoppingToken); // Run daily
         }
     }
-
+    //reminder: dublicated code , plz watch it out!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     private async Task SendServiceReminders(IServiceScheduleRepository scheduleRepo, IMediator mediator, CancellationToken token)
     {
         var targetDate = DateOnly.FromDateTime(DateTime.UtcNow.AddDays(_settings.ServiceDaysBefore));

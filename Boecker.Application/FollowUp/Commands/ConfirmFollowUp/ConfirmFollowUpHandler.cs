@@ -45,7 +45,7 @@ public class ConfirmFollowUpHandler(
                 TechnicianId = null // Not yet assigned
             };
 
-            await scheduleRepo.AddAsync(newSchedule, cancellationToken);
+            await scheduleRepo.UpdateAsync(newSchedule, cancellationToken);
             logger.LogInformation("Scheduled follow-up service for contract #{ContractId} on {Date}", followUp.ContractId, followUp.ScheduledDate);
         }
 
