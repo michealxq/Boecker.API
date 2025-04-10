@@ -1,7 +1,10 @@
-﻿using Boecker.Application.Payments.Commands.CreatePayment;
-using Boecker.Application.Payments.Commands.DeletePayment;
+﻿
+using Boecker.Application.Payments.Commands.CreatePayment;
+using Boecker.Application.Payments.Commands.CreatePaymentByInvoiceNumber;
+using Boecker.Application.Payments.Dtos;
+using Boecker.Application.Payments.Queries.GetAllPayments;
 using Boecker.Application.Payments.Queries.GetPaymentsByInvoiceId;
-using Boecker.Domain.IRepositories;
+
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -26,11 +29,22 @@ namespace Boecker.API.Controllers
             return Ok(result);
         }
 
-        [HttpDelete("{id}")]
-        public async Task<IActionResult> Delete(int id)
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<PaymentDto>>> GetAllPayments()
         {
-            await mediator.Send(new DeletePaymentCommand(id));
-            return NoContent();
+            var result = await mediator.Send(new GetAllPaymentsQuery());
+            return Ok(result);
         }
+
+        [HttpPost("by-invoice-number")]
+        public async Task<ActionResult<PaymentDto>> CreatePaymentByInvoiceNumber(CreatePaymentByInvoiceNumberCommand command, CancellationToken cancellationToken)
+        {
+            var paymentDto = await mediator.Send(command, cancellationToken);
+            // Optionally, return 201 Created with location header.
+            return CreatedAtAction(nameof(GetByInvoice), new { id = paymentDto.PaymentId }, paymentDto);
+        }
+
+
+
     }
 }

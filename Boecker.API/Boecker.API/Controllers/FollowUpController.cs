@@ -1,5 +1,7 @@
 ﻿using Boecker.Application.FollowUp.Commands.ConfirmFollowUp;
 using Boecker.Application.FollowUp.Commands.DeclineFollowUp;
+using Boecker.Application.FollowUp.Dtos;
+using Boecker.Application.FollowUp.Queries.GetAllFollowUps;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -22,6 +24,13 @@ namespace Boecker.API.Controllers
         {
             await mediator.Send(new DeclineFollowUpCommand(id), cancellationToken);
             return Ok("✅ Follow-up declined.");
+        }
+
+        [HttpGet]
+        public async Task<ActionResult<List<FollowUpDto>>> GetAll(CancellationToken cancellationToken)
+        {
+            var followUps = await mediator.Send(new GetAllFollowUpsQuery(), cancellationToken);
+            return Ok(followUps);
         }
     }
 }

@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Boecker.Application.Contracts.Queries.GetAllContracts;
 using Boecker.Application.Contracts.Queries.GetContractById;
+using Boecker.Application.Contracts.Commands.DeclineContract;
 
 namespace Boecker.API.Controllers
 {
@@ -38,6 +39,13 @@ namespace Boecker.API.Controllers
         {
             var contracts = await mediator.Send(new GetAllContractsQuery(), cancellationToken);
             return Ok(contracts);
+        }
+
+        [HttpPost("{id}/decline")]
+        public async Task<IActionResult> Decline(int id, CancellationToken cancellationToken)
+        {
+            var result = await mediator.Send(new DeclineContractCommand(id));
+            return result ? Ok("Contract declined.") : NotFound("Contract not found.");
         }
     }
 }
