@@ -13,5 +13,6 @@ public interface IFollowUpRepository
     Task AddRangeAsync(IEnumerable<FollowUpSchedule> followUps, CancellationToken cancellationToken);
     IQueryable<FollowUpSchedule> Query();
     Task<List<FollowUpSchedule>> GetAllAsync(CancellationToken cancellationToken);
+    Task DeleteAsync(FollowUpSchedule followUpSchedule);
 
 }

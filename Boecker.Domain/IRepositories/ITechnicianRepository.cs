@@ -11,6 +11,6 @@ public interface ITechnicianRepository
     Task AddAsync(Technician technician, CancellationToken cancellationToken);
     Task DeleteAsync(Technician technician, CancellationToken cancellationToken);
     Task<List<Technician>> GetAllAsync(CancellationToken cancellationToken);
-
+    IQueryable<Technician> Query();
 
 }

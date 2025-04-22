@@ -10,6 +10,7 @@ public interface IContractRepository
     Task SaveChangesAsync(CancellationToken cancellationToken);
     Task<Contract?> GetByIdWithInvoicesAsync(int id, CancellationToken cancellationToken);
     IQueryable<Contract> Query();
+    Task DeleteAsync(Contract contract);
     //Task<Contract?> GetWithServicesByIdAsync(int contractId, CancellationToken cancellationToken);
 
 

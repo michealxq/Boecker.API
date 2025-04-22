@@ -1,5 +1,6 @@
 ﻿using Boecker.Application.Invoices.Commands.CreateInvoices;
 using Boecker.Application.Invoices.Commands.GenerateProformaInvoice;
+using Boecker.Application.ServiceSchedules.Commands.AssignTechnician;
 using Boecker.Domain.Constants;
 using Boecker.Domain.Entities;
 using Boecker.Domain.IRepositories;
@@ -13,17 +14,24 @@ public class CreateContractHandler : IRequestHandler<CreateContractCommand, int>
     private readonly IMediator _mediator;
     private readonly IInvoiceRepository _invoiceRepo;
     private readonly IServiceScheduleRepository _scheduleRepo;
+    private readonly IFollowUpRepository _followUpRepo;           // ← new
+    private readonly ITechnicianRepository _technicianRepo;
 
     public CreateContractHandler(
         IContractRepository contractRepo,
         IMediator mediator,
         IInvoiceRepository invoiceRepo,
+        IFollowUpRepository followUpRepo,                       // ← new
+        ITechnicianRepository technicianRepo,
+
         IServiceScheduleRepository scheduleRepo)
     {
         _contractRepo = contractRepo;
         _mediator = mediator;
         _invoiceRepo = invoiceRepo;
         _scheduleRepo = scheduleRepo;
+        _followUpRepo = followUpRepo;                        // ← new
+        _technicianRepo = technicianRepo;
     }
 
     public async Task<int> Handle(CreateContractCommand request, CancellationToken cancellationToken)
@@ -63,14 +71,39 @@ public class CreateContractHandler : IRequestHandler<CreateContractCommand, int>
             {
                 ContractId = contract.ContractId,
                 ServiceId = service.ServiceId,
-                TechnicianId = null, // Or assign dynamically
-                DateScheduled = contract.StartDate, // Can be calculated dynamically later
+                //TechnicianId = null, 
+                DateScheduled = contract.StartDate,
                 Status = ScheduleStatus.Scheduled,
-                IsFollowUp = false
+                IsFollowUp = false 
             };
+
+            // pick first available technician
+            var tech = (await _technicianRepo.GetAvailableAsync(cancellationToken)).FirstOrDefault();
+            if (tech != null)
+            {
+                schedule.TechnicianId = tech.TechnicianId;
+                tech.IsAvailable = false;
+                await _technicianRepo.SaveChangesAsync(cancellationToken);
+                
+                //await _mediator.Send(new AssignTechnicianCommand(schedule.ServiceScheduleId, tech.TechnicianId), cancellationToken);
+            }
 
             await _scheduleRepo.AddAsync(schedule, cancellationToken);
         }
+
+        // 2) **Immediately create follow‑up** if requested  
+        if (request.IncludesFollowUp)
+        {
+            var followUp = new FollowUpSchedule
+            {
+                ContractId = contract.ContractId,
+                // you can derive period from your business rules; here we use 6 months:
+                ScheduledDate = contract.EndDate.AddMonths(6),
+                Status = FollowUpStatus.Pending
+            };
+            await _followUpRepo.AddAsync(followUp, cancellationToken);
+        }
+
 
         await _mediator.Send(new GenerateProformaInvoiceCommand(contract.ContractId, request.VATPercentage), cancellationToken);
 

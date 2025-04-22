@@ -45,4 +45,6 @@ public class TechnicianRepository : ITechnicianRepository
             .ToListAsync(cancellationToken);
     }
 
+    public IQueryable<Technician> Query() => _context.Technicians.AsQueryable();
+
 }

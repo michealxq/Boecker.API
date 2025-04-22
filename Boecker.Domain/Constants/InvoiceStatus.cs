@@ -3,7 +3,7 @@
 public enum InvoiceStatus
 {
     Pending,
-    Confirmed, // 🆕 New status
+    PartiallyPaid, // 🆕 New status
     Paid,
     Canceled
 }

@@ -167,7 +167,10 @@ public class InvoiceRepository(ApplicationDbContext context) : IInvoiceRepositor
     {
         return await context.Invoices
             .Include(i => i.InvoiceServices)
-            .Where(i => i.ContractId == contractId && i.Status == InvoiceStatus.Pending)
+            .Include(i => i.Client)
+            .Where(i => i.ContractId == contractId &&
+                        i.Status == InvoiceStatus.Pending &&
+                        i.InvoiceServices.Any()) // ✅ Ensure it has services
             .OrderByDescending(i => i.IssueDate)
             .FirstOrDefaultAsync(cancellationToken);
     }

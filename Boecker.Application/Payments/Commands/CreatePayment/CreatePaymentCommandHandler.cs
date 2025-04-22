@@ -1,20 +1,24 @@
 ﻿
 using Boecker.Domain.Constants;
 using Boecker.Domain.Entities;
+using Boecker.Domain.Execptions;
 using Boecker.Domain.IRepositories;
 using MediatR;
 
 namespace Boecker.Application.Payments.Commands.CreatePayment;
 
+
+
 public class CreatePaymentCommandHandler(
         IPaymentRepository paymentRepo,
         IInvoiceRepository invoiceRepo
-    ) : IRequestHandler<CreatePaymentCommand, int>
+    ) : IRequestHandler<CreatePaymentCommand, PaymentResultDto>
 {
-    public async Task<int> Handle(CreatePaymentCommand request, CancellationToken cancellationToken)
+    public async Task<PaymentResultDto> Handle(CreatePaymentCommand request, CancellationToken cancellationToken)
     {
         var invoice = await invoiceRepo.GetByIdAsync(request.InvoiceId);
-        if (invoice == null) throw new Exception("Invoice not found.");
+        if (invoice == null) return null!;
+            //throw new NotFoundException("Invoice not found.");
 
         var payment = new Payment
         {
@@ -23,22 +27,32 @@ public class CreatePaymentCommandHandler(
             Amount = request.Amount,
             PaymentMethod = request.PaymentMethod
         };
-
         await paymentRepo.AddAsync(payment, cancellationToken);
 
-        // Check if invoice should be marked as Paid
-        var totalPaid = await paymentRepo.GetTotalPaidForInvoiceAsync(request.InvoiceId, cancellationToken);
-        var shouldBeMarkedPaid = totalPaid >= invoice.TotalAfterTax;
+        // recompute how much has been paid so far
+        var totalPaid = await paymentRepo
+            .GetTotalPaidForInvoiceAsync(request.InvoiceId, cancellationToken);
 
-        if (shouldBeMarkedPaid && invoice.Status != InvoiceStatus.Paid)
+        var remaining = invoice.TotalAfterTax - totalPaid;
+        var newStatus = totalPaid >= invoice.TotalAfterTax
+            ? InvoiceStatus.Paid
+            : InvoiceStatus.PartiallyPaid;   // make sure you add this to your enum
+
+        if (invoice.Status != newStatus)
         {
-            var oldStatus = invoice.Status;
-            invoice.Status = InvoiceStatus.Paid;
-
+            var old = invoice.Status;
+            invoice.Status = newStatus;
             await invoiceRepo.UpdateAsync(invoice);
-            await invoiceRepo.LogInvoiceStatusChangeAsync(oldStatus, InvoiceStatus.Paid, invoice.InvoiceId, request.PerformedBy);
+            await invoiceRepo.LogInvoiceStatusChangeAsync(
+                old, newStatus, invoice.InvoiceId, request.PerformedBy);
         }
 
-        return payment.PaymentId;
+        return new PaymentResultDto(
+            payment.PaymentId,
+            totalPaid,
+            Math.Max(remaining, 0m),
+            newStatus
+        );
     }
+
 }

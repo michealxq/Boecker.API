@@ -120,10 +120,10 @@ internal class DatabaseSeeder(ApplicationDbContext dbContext, ILogger<DatabaseSe
     private IEnumerable<Service> GetServices()
     {
         List<Service> services = [
-        
+
         new() { Name = "The Extermination of Crawling Insects & Rodents", Description = "Schedule Of Services:-One Basic Service -One Replenishing Service -One Control Treatment , taking place 6 months after BS -One year warranty with free call-backs", Price = 0.00M, EstimatedCompletionTime = 1, RequiresFollowUp = true, ServiceCategoryId = 1 },
         new() { Name = "", Description = "", Price = 117.12M, EstimatedCompletionTime = 1, RequiresFollowUp = false, ServiceCategoryId = 2 }
-        
+
         ];
         return services;
     }
@@ -131,10 +131,10 @@ internal class DatabaseSeeder(ApplicationDbContext dbContext, ILogger<DatabaseSe
     private IEnumerable<Client> GetClients()
     {
         List<Client> clients = [
-        
+
         new()
         {
-            
+
             Name = "Raymond Kamil Assaad Residence",
             Address = "Matn District-Antelias-Mount Lebanon",
             PhoneNumber = "+961 3622764-+961 3755301",
@@ -147,10 +147,10 @@ internal class DatabaseSeeder(ApplicationDbContext dbContext, ILogger<DatabaseSe
     private IEnumerable<Invoice> GetInvoices()
     {
         List<Invoice> invoices = [
-        
+
         new()
         {
-            
+
             InvoiceNumber = "OF 234958",
             IssueDate = new DateTime(2024, 07, 18),
             ValidFrom = new DateTime(2024, 07, 31),
@@ -168,7 +168,7 @@ internal class DatabaseSeeder(ApplicationDbContext dbContext, ILogger<DatabaseSe
     private IEnumerable<InvoiceService> GetInvoiceServices()
     {
         List<InvoiceService> invoiceServices = [
-        
+
             new() {  InvoiceId = 1, ServiceId = 1, Price = 0.00M, DurationDays = 365, Completed = false },
             new() {  InvoiceId = 1, ServiceId = 2, Price = 117.12M, DurationDays = 365, Completed = false }
         ];
