@@ -1,5 +1,7 @@
-﻿using Boecker.Application.FollowUp.Commands.ConfirmFollowUp;
+﻿using Boecker.Application.Clients.Commands.DeleteClient;
+using Boecker.Application.FollowUp.Commands.ConfirmFollowUp;
 using Boecker.Application.FollowUp.Commands.DeclineFollowUp;
+using Boecker.Application.FollowUp.Commands.DeleteFollowUp;
 using Boecker.Application.FollowUp.Dtos;
 using Boecker.Application.FollowUp.Queries.GetAllFollowUps;
 using MediatR;
@@ -31,6 +33,17 @@ namespace Boecker.API.Controllers
         {
             var followUps = await mediator.Send(new GetAllFollowUpsQuery(), cancellationToken);
             return Ok(followUps);
+        }
+
+        [HttpDelete("{id}")]
+        //specifies the expected HTTP response status code to be not content or not found
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Delete([FromRoute] int id)
+        {
+            await mediator.Send(new DeleteFollowUpCommand(id));
+
+            return NoContent();
         }
     }
 }

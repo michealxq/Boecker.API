@@ -57,4 +57,12 @@ public class FollowUpRepository : IFollowUpRepository
     {
         return await _context.FollowUpSchedules.ToListAsync(cancellationToken);
     }
+
+    public async Task DeleteAsync(FollowUpSchedule followUpSchedule)
+    {
+        _context.FollowUpSchedules.Remove(followUpSchedule);
+        await _context.SaveChangesAsync();
+    }
+
+   
 }

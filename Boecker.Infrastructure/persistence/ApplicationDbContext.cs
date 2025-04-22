@@ -57,6 +57,13 @@ public class ApplicationDbContext : IdentityDbContext<ApplicationUser, Applicati
             .Property(s => s.Price)
             .HasPrecision(18, 2);
 
+        modelBuilder.Entity<Service>()
+            .HasOne(s => s.ServiceCategory)
+            .WithMany(sc => sc.Services)
+            .HasForeignKey(s => s.ServiceCategoryId)
+            .OnDelete(DeleteBehavior.Cascade); // or .Restrict if you prefer
+
+
         modelBuilder.Entity<InvoiceService>()
             .Property(isv => isv.Price)
             .HasPrecision(18, 2);

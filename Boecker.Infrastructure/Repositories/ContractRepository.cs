@@ -25,6 +25,7 @@ public class ContractRepository : IContractRepository
     {
         return await _context.Contracts
             .Include(c => c.ServiceSchedules)
+                .ThenInclude(ss => ss.Service)
             .FirstOrDefaultAsync(c => c.ContractId == id, cancellationToken);
     }
 
@@ -41,5 +42,13 @@ public class ContractRepository : IContractRepository
     }
 
     public IQueryable<Contract> Query() => _context.Contracts.AsQueryable();
+
+    public async Task DeleteAsync(Contract contract)
+    {
+        _context.Contracts.Remove(contract);
+        await _context.SaveChangesAsync();
+    }
+
+    
 }
 

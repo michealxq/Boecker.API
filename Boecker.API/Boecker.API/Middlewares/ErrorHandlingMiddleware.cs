@@ -1,4 +1,5 @@
-﻿using Boecker.Domain.Execptions;
+﻿//using Boecker.Application.Execptions;
+using Boecker.Domain.Execptions;
 
 namespace Boecker.API.Middlewares;
 

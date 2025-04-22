@@ -4,6 +4,8 @@ using Boecker.Application.Invoices.Commands.DeleteInvoice;
 using Boecker.Application.Invoices.Commands.GenerateFinalInvoice;
 using Boecker.Application.Invoices.Commands.GenerateProformaInvoice;
 using Boecker.Application.Invoices.Commands.GenerateRecurringInvoices;
+using Boecker.Application.Invoices.Commands.UpdateInvoice;
+using Boecker.Application.Invoices.Commands.UpdateInvoiceServices;
 using Boecker.Application.Invoices.Commands.UpdateInvoiceStatus;
 using Boecker.Application.Invoices.Queries.DownloadInvoicePdf;
 using Boecker.Application.Invoices.Queries.GetAllInvoices;
@@ -62,6 +64,21 @@ public class InvoiceController(IMediator mediator) : ControllerBase
 
         await _mediator.Send(command);
         return NoContent();
+    }
+
+    [HttpPut("{id}/services")]
+    public async Task<IActionResult> UpdateServices(
+    int id,
+    [FromBody] UpdateInvoiceServicesCommand command)
+    {
+        if (id != command.InvoiceId)
+            return BadRequest("Invoice ID mismatch.");
+
+        var updatedInvoice = await _mediator.Send(command);
+        if (updatedInvoice is null)
+            return NotFound();
+
+        return Ok(updatedInvoice);
     }
 
     [HttpDelete("{id}")]
@@ -149,6 +166,16 @@ public class InvoiceController(IMediator mediator) : ControllerBase
             routeValues: new { id = invoiceId },
             value: new { invoiceId, message = "✅ Proforma invoice generated." }
         );
+    }
+
+    [HttpPut("{id}")]
+    public async Task<IActionResult> Update(int id, [FromBody] UpdateInvoiceCommand command)
+    {
+        if (id != command.InvoiceId)
+            return BadRequest("Invoice ID mismatch.");
+
+        var result = await mediator.Send(command);
+        return result ? Ok("✅ Invoice updated.") : NotFound("Invoice not found.");
     }
 
 

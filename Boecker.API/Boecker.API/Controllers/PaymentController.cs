@@ -3,6 +3,7 @@ using Boecker.Application.Payments.Commands.CreatePayment;
 using Boecker.Application.Payments.Commands.CreatePaymentByInvoiceNumber;
 using Boecker.Application.Payments.Dtos;
 using Boecker.Application.Payments.Queries.GetAllPayments;
+using Boecker.Application.Payments.Queries.GetInvoicePaymentSummary;
 using Boecker.Application.Payments.Queries.GetPaymentsByInvoiceId;
 
 using MediatR;
@@ -16,11 +17,25 @@ namespace Boecker.API.Controllers
     public class PaymentsController(IMediator mediator) : ControllerBase
     {
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody] CreatePaymentCommand command, CancellationToken cancellationToken)
+        public async Task<ActionResult<PaymentResultDto>> Create(
+            [FromBody] CreatePaymentCommand cmd,
+            CancellationToken ct)
         {
-            var id = await mediator.Send(command, cancellationToken);
-            return Ok(new { message = "✅ Payment created", paymentId = id });
+            var result = await mediator.Send(cmd, ct);
+            return CreatedAtAction(
+                nameof(GetByInvoice),
+                new { invoiceId = result.PaymentId },
+                result);
         }
+
+        [HttpGet("summary/{invoiceId}")]
+        public async Task<ActionResult<PaymentSummaryDto>> GetSummary(int invoiceId)
+        {
+            var summary = await mediator.Send(new GetInvoicePaymentSummaryQuery(invoiceId));
+            return Ok(summary);
+        }
+
+
 
         [HttpGet("by-invoice/{invoiceId}")]
         public async Task<IActionResult> GetByInvoice(int invoiceId)

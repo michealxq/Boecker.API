@@ -3,7 +3,7 @@ namespace Boecker.Application.FollowUp.Dtos;
 
 public class FollowUpDto
 {
-    public int FollowUpId { get; set; }
+    public int FollowUpScheduleId { get; set; }
     public int ContractId { get; set; }
     public DateTime ScheduledDate { get; set; }
     public string Status { get; set; } = string.Empty;

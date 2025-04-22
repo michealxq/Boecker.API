@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc;
 using Boecker.Application.Contracts.Queries.GetAllContracts;
 using Boecker.Application.Contracts.Queries.GetContractById;
 using Boecker.Application.Contracts.Commands.DeclineContract;
+using Boecker.Application.FollowUp.Commands.DeleteFollowUp;
+using Boecker.Application.Contracts.Commands.DeleteContacts;
 
 namespace Boecker.API.Controllers
 {
@@ -46,6 +48,18 @@ namespace Boecker.API.Controllers
         {
             var result = await mediator.Send(new DeclineContractCommand(id));
             return result ? Ok("Contract declined.") : NotFound("Contract not found.");
+        }
+
+
+        [HttpDelete("{id}")]
+        //specifies the expected HTTP response status code to be not content or not found
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<IActionResult> Delete([FromRoute] int id)
+        {
+            await mediator.Send(new DeleteContactsCommand(id));
+
+            return NoContent();
         }
     }
 }
